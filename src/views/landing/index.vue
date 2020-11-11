@@ -151,12 +151,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar" top right :color="color">
+    <v-snackbar v-model="snackbar" top right color="success">
       Данные отправлены
 
       <template v-slot:action="{ attrs }">
         <v-btn color="white" text v-bind="attrs" @click="snackbar = false">
-          Закрыть
+          Ok
         </v-btn>
       </template>
     </v-snackbar>
@@ -187,16 +187,23 @@ export default {
   methods: {
     submit() {
       this.loading = true;
-      const formData = new FormData();
       if (!this.$refs.managerForm.validate()) {
         this.loading = false;
         return;
       }
+      let formData = new FormData();
       formData.append("phone", this.form.phone);
       formData.append("os", this.form.os);
       this.$store
-        .dispatch("submitForm", this.form)
-        .then(() => {})
+        .dispatch("submitForm", formData)
+        .then(() => {
+          this.dialog = false;
+          this.snackbar = true;
+          this.form = {
+            phone: "",
+            os: "ANDROID"
+          };
+        })
         .catch(e => {
           console.error(e);
         })

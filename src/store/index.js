@@ -8,12 +8,11 @@ export default new Vuex.Store({
   state: {},
   mutations: {},
   actions: {
-    submitForm(data) {
+    // eslint-disable-next-line no-unused-vars
+    submitForm({ commit }, data) {
       return new Promise((resolve, reject) => {
         api
-          .post("//151.248.122.207:8080/api/public/sms/3pizza/send", data, {
-            headers: { "Content-Type": "multipart/form-data" }
-          })
+          .post("//151.248.122.207:8080/api/public/sms/3pizza/send", data)
           .then(response => {
             resolve(response);
           })
