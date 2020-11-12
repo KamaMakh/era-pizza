@@ -90,7 +90,7 @@
             <div class="os-title mr-sm-3 mr-0"><span>i</span>OS</div>
           </div>
         </div>
-        <div class="link">
+        <div class="link" @click="dialogAgreement = true">
           Условия обслуживания и доставка
         </div>
       </div>
@@ -142,11 +142,53 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="dialog = false">
+          <v-btn color="blue darken-1" outlined @click="dialog = false">
             Закрыть
           </v-btn>
-          <v-btn color="#c80101" text @click="submit()" :loading="loading">
+          <v-btn :color="color" outlined @click="submit()" :loading="loading">
             Прислать ссылку
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogAgreement" width="700px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Прием заказов:</span>
+        </v-card-title>
+        <v-card-text>
+          Ежедневно Пн-Пт с 11:00 до 22:00 Приём заказов до 21:30 Сб-Вс с 10:00
+          до 22:00 Приём заказов до 21:30
+        </v-card-text>
+        <v-card-title>
+          <span class="headline">Доставка:</span>
+        </v-card-title>
+        <v-card-text>
+          Зона доставки: Академгородок (верхняя и нижняя зоны). Бесплатная
+          доставка при заказе 900 рублей <br />
+          Зона доставки: Шлюз, Нижняя Ельцовка. Бесплатная доставка при заказе
+          800 рублей.<br />
+          Зона доставки: п. Кольцово Бесплатная доставка при заказе 1000 рублей.
+          При заказе меньше чем минимальная сумма заказа - стоимость доставки
+          200 рублей.
+          <div class="map-container">
+            <div class="map-inner">
+              <div class="map-frame">
+                <div id="map"></div>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-title>
+          <span class="headline">Самовывоз:</span>
+        </v-card-title>
+        <v-card-text>
+          Самовывоз осуществляется по адресу ул. Благовещенская 48/1 подъезд 9.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn :color="color" outlined @click="dialogAgreement = false">
+            Закрыть
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -165,11 +207,13 @@
 
 <script>
 import { required } from "@/utils/validator";
+import L from "leaflet";
 export default {
   name: "index",
   data() {
     return {
       dialog: false,
+      dialogAgreement: false,
       checkbox: true,
       rules: {
         required: value => required(value) || "Обязательно для заполнения"
@@ -181,7 +225,8 @@ export default {
         os: "ANDROID"
       },
       snackbar: false,
-      color: "#c80101"
+      color: "#c80101",
+      map: null
     };
   },
   methods: {
@@ -210,12 +255,48 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    initMap() {
+      this.map = new L.Map("map", {
+        center: new L.LatLng(54.876902943601756, 83.07586669921876),
+        zoom: 12,
+        zoomAnimation: true
+      });
+
+      L.tileLayer("http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}").addTo(
+        this.map
+      );
+      this.polygons.forEach(p => {
+        let latlngs = [];
+        p.coords.forEach(coord => {
+          latlngs.push([coord.latitude, coord.longitude]);
+        });
+        const polygon = L.polygon(latlngs, { color: p.color }).addTo(this.map);
+        polygon
+          .bindTooltip(p.name, { permanent: true, direction: "center" })
+          .openTooltip();
+      });
+    }
+  },
+  watch: {
+    dialogAgreement(val) {
+      if (val) {
+        this.$nextTick(() => {
+          if (!this.map) {
+            setTimeout(() => {
+              this.initMap();
+            }, 1000);
+            this.$forceUpdate();
+          }
+        });
+      }
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
+@import "~leaflet/dist/leaflet.css";
 .landing {
   padding: 130px 125px 130px 150px;
   display: flex;
@@ -454,5 +535,26 @@ export default {
       color: #c80101;
     }
   }
+}
+.map-container {
+  margin: 30px 0;
+  min-height: 500px;
+  position: relative;
+  .map-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.map-frame {
+  border: 2px solid black;
+  height: 100%;
+}
+
+#map {
+  height: 100%;
 }
 </style>
