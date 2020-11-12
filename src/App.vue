@@ -10,6 +10,16 @@
         </transition>
       </v-container>
     </v-main>
+    <v-footer app style="font-size: 11px">
+      <v-col class="pa-0">
+        ООО "ЕРА" <br />
+        Адрес: г. Новосибирск, ул. Благовещенская 48/1 подъезд 9.
+      </v-col>
+      <v-col class="pa-0 text-right">
+        ИНН 5408022063 <br />
+        КПП 540801001
+      </v-col>
+    </v-footer>
   </v-app>
 </template>
 
