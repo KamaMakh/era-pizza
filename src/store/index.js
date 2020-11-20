@@ -12,7 +12,10 @@ export default new Vuex.Store({
     submitForm({ commit }, data) {
       return new Promise((resolve, reject) => {
         api
-          .post("//151.248.122.207:8080/api/public/sms/3pizza/send", data)
+          .post(
+            "https://stroy-assist-backend.ru:8443/api/public/sms/3pizza/send",
+            data
+          )
           .then(response => {
             resolve(response);
           })
