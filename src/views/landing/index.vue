@@ -76,18 +76,42 @@
           <div
             class="d-flex align-center justify-center justify-md-end flex-column flex-sm-row inner mb-4 mb-sm-0"
           >
-            <div class="os-title mr-sm-3 ml-0"><span>A</span>ndroid</div>
+            <a
+              class="os-title mr-sm-3 ml-0"
+              style="display: block; text-decoration: none;"
+              href="http://3-pizza.ru/android"
+              target="_blank"
+              ><span>A</span>ndroid</a
+            >
             <div class="os-pic ml-sm-3 ml-0">
-              <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+              <a
+                style="display: block; text-decoration: none;"
+                href="http://3-pizza.ru/android"
+                target="_blank"
+              >
+                <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+              </a>
             </div>
           </div>
           <div
             class="d-flex align-center justify-center justify-md-start flex-column flex-sm-row inner"
           >
             <div class="os-pic mr-sm-3 mr-0">
-              <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+              <a
+                style="display: block; text-decoration: none;"
+                href="http://3-pizza.ru/ios"
+                target="_blank"
+              >
+                <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+              </a>
             </div>
-            <div class="os-title mr-sm-3 mr-0"><span>i</span>OS</div>
+            <a
+              class="os-title mr-sm-3 mr-0"
+              style="display: block; text-decoration: none;"
+              href="http://3-pizza.ru/ios"
+              target="_blank"
+              ><span>i</span>OS</a
+            >
           </div>
         </div>
         <div class="link" @click="dialogAgreement = true">
@@ -95,7 +119,7 @@
         </div>
       </div>
     </div>
-    <v-dialog v-model="dialog" persistent max-width="600px">
+    <v-dialog v-model="dialog" max-width="600px">
       <v-card>
         <v-card-title>
           <span class="headline">Отправьте свои данные</span>
@@ -103,49 +127,65 @@
         <v-card-text>
           <v-container>
             <v-form lazy-validation ref="managerForm" v-model="formValid">
-              <v-row>
+              <v-row class="align-start">
                 <v-col cols="12">
                   <v-text-field
                     v-model="form.phone"
                     v-mask="'+7-###-###-##-##'"
                     :color="color"
-                    label="Телефон"
+                    label="Укажите ваш телефон"
                     required
-                    :rules="[rules.required]"
+                    :rules="[rules.required, rules.minLength(form.phone, 16)]"
+                    @blur="phoneBlur"
+                    @focus="phoneBlur"
+                    validate-on-blur
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-autocomplete
+                  <v-radio-group
                     v-model="form.os"
-                    :items="[
-                      { title: 'Андроид', value: 'ANDROID' },
-                      { title: 'iOS', value: 'IOS' }
-                    ]"
-                    item-text="title"
-                    item-value="value"
-                    label="Платформа"
-                    :color="color"
+                    row
                     :rules="[rules.required]"
-                  ></v-autocomplete>
+                    class="ma-0"
+                    persistent-hint
+                    hint="Платформа вашего смартфона"
+                  >
+                    <template v-slot:label>
+                      <div><strong>У Вас:</strong></div>
+                    </template>
+                    <v-radio
+                      :color="color"
+                      label="Андроид"
+                      value="ANDROID"
+                    ></v-radio>
+                    <v-radio :color="color" label="iOS" value="IOS"></v-radio>
+                  </v-radio-group>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-checkbox
                     v-model="checkbox"
-                    disabled
                     :color="color"
+                    hide-details
                     label="я согласен на обработку персональных данных"
+                    class="ma-0"
                   ></v-checkbox>
                 </v-col>
               </v-row>
             </v-form>
           </v-container>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
+        <v-card-actions class="d-flex justify-center">
           <v-btn color="blue darken-1" outlined @click="dialog = false">
             Закрыть
           </v-btn>
-          <v-btn :color="color" outlined @click="submit()" :loading="loading">
+          <v-btn
+            :color="color"
+            outlined
+            @click="submit()"
+            :loading="loading"
+            :disabled="!checkbox"
+            :dark="checkbox"
+          >
             Прислать ссылку
           </v-btn>
         </v-card-actions>
@@ -206,7 +246,7 @@
 </template>
 
 <script>
-import { required } from "@/utils/validator";
+import { required, minLength } from "@/utils/validator";
 import L from "leaflet";
 export default {
   name: "index",
@@ -216,13 +256,15 @@ export default {
       dialogAgreement: false,
       checkbox: true,
       rules: {
-        required: value => required(value) || "Обязательно для заполнения"
+        required: value => required(value) || "Обязательно для заполнения",
+        minLength: (value, min) =>
+          minLength(value, min) || "Номер телефона не корректен"
       },
       formValid: true,
       loading: false,
       form: {
         phone: "",
-        os: "ANDROID"
+        os: null
       },
       snackbar: false,
       color: "#c80101",
@@ -255,6 +297,11 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    phoneBlur() {
+      if (!this.form.phone) {
+        this.form.phone = "+7";
+      }
     },
     initMap() {
       this.map = new L.Map("map", {

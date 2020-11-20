@@ -8,6 +8,11 @@ const routes = [
     path: "/",
     name: "Landing",
     component: () => import("@/views/landing")
+  },
+  {
+    path: "/policy",
+    name: "Policy",
+    component: () => import("@/views/policy")
   }
 ];
 
