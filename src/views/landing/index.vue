@@ -89,7 +89,7 @@
                 href="http://3-pizza.ru/android"
                 target="_blank"
               >
-                <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+                <v-img src="../../assets/images/android.jpg" width="133px"></v-img>
               </a>
             </div>
           </div>
@@ -102,7 +102,7 @@
                 href="http://3-pizza.ru/ios"
                 target="_blank"
               >
-                <v-img src="../../assets/images/ios.png" width="133px"></v-img>
+                <v-img src="../../assets/images/ios.jpg" width="133px"></v-img>
               </a>
             </div>
             <a
